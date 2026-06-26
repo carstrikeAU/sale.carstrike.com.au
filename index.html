@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Car Sale Display Generator | Printable Price Stickers | CarStrike</title>
+    <meta name="description" content="Free tool for car dealerships and private sellers. Generate professional, printable A4 window display stickers for your used cars instantly. Provided by Carstrike.">
+    <meta name="keywords" content="car sale sticker generator, used car display, car price window sticker, dealership printable signs, car window display template">
+    
+    <meta property="og:title" content="Car Sale Display Generator | CarStrike">
+    <meta property="og:description" content="Generate professional, printable A4 window display stickers for your used cars instantly.">
+    <meta property="og:url" content="https://sale.carstrike.com.au">
+    <meta property="og:type" content="website">
+
+    <link rel="canonical" href="https://sale.carstrike.com.au">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CarStrike Sale Display Generator",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://sale.carstrike.com.au",
+      "description": "A free web-based tool for generating professional, printable A4 window display stickers for used vehicles.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "AUD"
+      },
+      "provider": {
+        "@type": "AutoDealer",
+        "name": "CarStrike",
+        "url": "https://carstrike.com.au"
+      }
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@500;700&family=Anton&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .price-font { font-family: 'Anton', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Oswald', sans-serif; }
+        
+        .btn-primary { 
+            background-color: #0f172a; 
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { 
+            background-color: #1e293b; 
+            transform: translateY(-1px);
+        }
+        
+        #print-preview { display: none; }
+        #a4-sheet {
+            width: 29.7cm;
+            height: 21cm;
+            padding: 1cm;
+            margin: 2rem auto;
+            box-sizing: border-box;
+            background: white;
+            color: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+            overflow: hidden; 
+        }
+        #print-button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            }
+            #a4-sheet {
+                margin: 0; box-shadow: none; transform: scale(1);
+            }
+            #print-button-container { display: none; }
+            @page { size: A4 landscape; margin: 0; }
+        }
+    </style>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-00VFMFNZYE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-00VFMFNZYE');
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- CarStrike Branding Header -->
+    <div class="bg-white border-b border-gray-200 py-4 px-6 shadow-sm mb-8">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <img src="https://carstrike.com.au/images/logo.png" alt="CarStrike" class="h-12 w-auto object-contain">
+                <div class="h-8 w-px bg-gray-300 mx-2 hidden sm:block"></div>
+                <span class="text-xl font-bold tracking-tight text-gray-700 hidden sm:block brand-font">CARSTRIKE SALE DISPLAY GENERATOR</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="view_data.php" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">View Dashboard &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="form-container">
+        <div id="app" class="w-full max-w-lg mx-auto mb-20 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-slate-900 px-8 py-6 text-white text-center">
+                <h1 class="text-2xl font-bold tracking-wide uppercase">Vehicle Details</h1>
+                <p class="text-slate-400 text-sm font-sans">Enter details below to generate display</p>
+            </div>
+            
+            <form id="car-form" class="p-8 space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Price Display</label>
+                    <div id="price-options" class="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex items-center">
+                            <input id="show-price-radio" name="price_option" type="radio" value="show_price" checked class="h-4 w-4 text-slate-900 border-gray-300 focus:ring-slate-900">
+                            <label for="show-price-radio" class="ml-3 block text-sm font-medium text-gray-700">Show Price</label>
+                        </div>
+                        <div id="price-input-container" class="pl-7">
+                             <div class="relative rounded-md shadow-sm">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                  <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input type="number" id="sale-price" name="price" class="block w-full rounded-md border-gray-300 pl-7 py-2 focus:border-slate-900 focus:ring-slate-900 sm:text-sm" placeholder="26,000">
+                              </div>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="sold-radio" name="price_option" type="radio" value="sold" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-600">
+                            <label for="sold-radio" class="ml-3 block text-sm font-bold text-red-700">SOLD</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="not-for-sale-radio" name="price_option" type="radio" value="not_for_sale" class="h-4 w-4 text-gray-600 border-gray-300 focus:ring-gray-600">
+                            <label for="not-for-sale-radio" class="ml-3 block text-sm font-medium text-gray-700">NOT FOR SALE</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Autocomplete Make -->
+                <div>
+                    <label for="make" class="block text-sm font-bold text-gray-700">Make</label>
+                    <input list="makes-list" id="make" name="make" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-900 focus:ring-slate-900 py-2.5 px-3" placeholder="e.g. Toyota">
+                    <datalist id="makes-list">
+                        <!-- Populated by JS -->
+                    </datalist>
+                </div>
+
+                <!-- Autocomplete Model -->
+                <div>
+                    <label for="model" class="block text-sm font-bold text-gray-700">Model</label>
+                    <input list="models-list" type="text" id="model" name="model" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-900 focus:ring-slate-900 py-2.5 px-3" placeholder="e.g. Camry">
+                    <datalist id="models-list">
+                        <!-- Populated by JS -->
+                    </datalist>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="year" class="block text-sm font-bold text-gray-700">Year</label>
+                        <input type="number" id="year" name="year" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-900 focus:ring-slate-900 py-2.5 px-3" placeholder="2015">
+                    </div>
+                    <div>
+                        <label for="kilometers" class="block text-sm font-bold text-gray-700">Odometer (kms)</label>
+                        <input type="number" id="kilometers" name="kms" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-900 focus:ring-slate-900 py-2.5 px-3" placeholder="90000">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="transmission" class="block text-sm font-bold text-gray-700">Transmission</label>
+                        <select id="transmission" name="transmission" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-900 focus:ring-slate-900 py-2.5 px-3">
+                            <option>Automatic</option>
+                            <option>Manual</option>
+                            <option>CVT</option>
+                            <option>DCT</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="fuel" class="block text-sm font-bold text-gray-700">Fuel Type</label>
+                        <select id="fuel" name="fuel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-slate-900 focus:ring-slate-900 py-2.5 px-3">
+                            <option>Petrol</option>
+                            <option>Diesel</option>
+                            <option>Hybrid</option>
+                            <option>Electric</option>
+                        </select>
+                    </div>
+                </div>
+
+                 <div class="space-y-3 pt-2">
+                    <div class="flex items-center">
+                        <input id="written-off" name="history" type="checkbox" class="h-5 w-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                        <label for="written-off" class="ml-3 block text-sm font-bold text-gray-700">Written-off History</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="as-is" name="as_is" type="checkbox" class="h-5 w-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                        <label for="as-is" class="ml-3 block text-sm font-bold text-gray-700">Sold "As-Is" (No RWC)</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="rego" name="rego" type="checkbox" class="h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        <label for="rego" class="ml-3 block text-sm font-bold text-gray-700">Includes 3 Months Registration</label>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="btn-primary w-full flex justify-center py-3.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+                        Generate & Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Print Preview Section -->
+    <div id="print-preview">
+        <div id="print-button-container" class="flex gap-2 bg-white p-2 rounded-lg shadow-lg border border-gray-200">
+             <button id="back-to-form" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                &larr; Edit
+            </button>
+            <button onclick="window.print()" class="py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+                Print Sheet
+            </button>
+        </div>
+        <div id="print-area">
+            <div id="a4-sheet">
+                
+                <!-- Main Content Area -->
+                <div class="flex-grow flex flex-col items-center justify-center pt-8">
+                    <!-- Adjusted price font styling to avoid clipping -->
+                    <h2 id="display-price" class="font-bold text-center leading-tight price-font"></h2>
+                </div>
+                
+                <div id="display-footer" class="border-t-4 border-black pt-4 mt-auto">
+                    <div id="display-make-model-year" class="text-5xl font-bold text-center mb-6 uppercase tracking-tight font-sans"></div>
+                    
+                    <div class="flex justify-between items-center text-3xl font-bold px-4 mb-4">
+                        <div id="display-kms-transmission" class="flex gap-8"></div>
+                        <div id="display-history" class="flex items-center gap-4 text-xl"></div>
+                    </div>
+
+                    <!-- Moved Website URL to Bottom & Reduced spacing -->
+                    <div class="flex justify-center items-end pt-1 border-t border-gray-300 mt-2">
+                        <h3 class="text-xs font-medium text-gray-400 uppercase tracking-widest pb-0">www.carstrike.com.au</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- UI Elements ---
+        const formContainer = document.getElementById('form-container');
+        const printPreviewContainer = document.getElementById('print-preview');
+        const carForm = document.getElementById('car-form');
+        const backToFormButton = document.getElementById('back-to-form');
+        const priceOptions = document.getElementById('price-options');
+        const priceInputContainer = document.getElementById('price-input-container');
+        const salePriceInput = document.getElementById('sale-price');
+        const makeInput = document.getElementById('make');
+        const modelsDatalist = document.getElementById('models-list');
+
+        // --- FETCH AUTOCOMPLETE DATA ---
+        function loadMakes() {
+            fetch('get_options.php?type=makes')
+                .then(res => res.json())
+                .then(makes => {
+                    const makesList = document.getElementById('makes-list');
+                    makesList.innerHTML = '';
+                    makes.forEach(make => {
+                        const option = document.createElement('option');
+                        option.value = make;
+                        makesList.appendChild(option);
+                    });
+                });
+        }
+
+        // Load models when Make changes
+        makeInput.addEventListener('change', function() {
+            const selectedMake = this.value;
+            modelsDatalist.innerHTML = ''; // Clear previous
+            if(selectedMake) {
+                fetch(`get_options.php?type=models&make=${encodeURIComponent(selectedMake)}`)
+                    .then(res => res.json())
+                    .then(models => {
+                        models.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model;
+                            modelsDatalist.appendChild(option);
+                        });
+                    });
+            }
+        });
+
+        // --- NEW: Populate Form from URL Parameters (API Mode) ---
+        function populateFromUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Check if we have essential data to run in "API Mode"
+            if (urlParams.has('make') && urlParams.has('model') && urlParams.has('price')) {
+                
+                // Map URL params to form fields
+                if(urlParams.has('make')) document.getElementById('make').value = urlParams.get('make');
+                if(urlParams.has('model')) document.getElementById('model').value = urlParams.get('model');
+                if(urlParams.has('year')) document.getElementById('year').value = urlParams.get('year');
+                if(urlParams.has('kms')) document.getElementById('kilometers').value = urlParams.get('kms');
+                if(urlParams.has('transmission')) document.getElementById('transmission').value = urlParams.get('transmission');
+                if(urlParams.has('fuel')) document.getElementById('fuel').value = urlParams.get('fuel');
+                
+                // Handle Price / Status
+                const status = urlParams.get('status'); // 'sold', 'available', etc.
+                const price = urlParams.get('price');
+
+                if (status && status.toLowerCase() === 'sold') {
+                    document.getElementById('sold-radio').checked = true;
+                    // Trigger change event to update UI
+                    document.getElementById('sold-radio').dispatchEvent(new Event('change', { bubbles: true }));
+                } else if (status && status.toLowerCase() === 'archive') {
+                     document.getElementById('not-for-sale-radio').checked = true;
+                     document.getElementById('not-for-sale-radio').dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    document.getElementById('show-price-radio').checked = true;
+                    document.getElementById('sale-price').value = price;
+                    document.getElementById('show-price-radio').dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                // Handle Checkboxes (passed as '1' or 'true')
+                if(urlParams.get('history') === '1') document.getElementById('written-off').checked = true;
+                if(urlParams.get('as_is') === '1') document.getElementById('as-is').checked = true;
+                
+                // Auto-submit the form to show the preview immediately
+                // We use a small timeout to ensure the DOM is ready and makes are loaded (optional)
+                setTimeout(() => {
+                    const submitEvent = new Event('submit', { cancelable: true });
+                    carForm.dispatchEvent(submitEvent);
+                }, 500);
+            }
+        }
+
+        // --- Functions to switch views ---
+        function showForm() {
+            formContainer.style.display = 'block';
+            printPreviewContainer.style.display = 'none';
+        }
+
+        function showPrintPreview() {
+            formContainer.style.display = 'none';
+            printPreviewContainer.style.display = 'block';
+        }
+
+        // --- Populates the print preview with data ---
+        function populatePrintPreview(data) {
+            const priceOption = data.get('price_option');
+            const make = data.get('make');
+            const model = data.get('model');
+            const transmission = data.get('transmission');
+            const fuel = data.get('fuel');
+            const kilometers = parseInt(data.get('kms'));
+            const year = data.get('year');
+            const hasHistory = data.get('history') === 'on';
+            const isAsIs = data.get('as_is') === 'on';
+            const hasRego = data.get('rego') === 'on';
+
+            const displayPriceElement = document.getElementById('display-price');
+            displayPriceElement.textContent = '';
+
+            switch (priceOption) {
+                case 'show_price':
+                    const salePrice = parseFloat(data.get('price'));
+                    if (!isNaN(salePrice)) {
+                        // Use Anton font class
+                        displayPriceElement.className = "font-bold text-center leading-tight price-font";
+                        // Reduced size to 24rem to prevent cropping
+                        displayPriceElement.style.fontSize = '20rem'; 
+                        // Adjusted line height to prevent top/bottom clipping
+                        displayPriceElement.style.lineHeight = '1.1'; 
+                        displayPriceElement.textContent = salePrice.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    }
+                    break;
+                case 'sold':
+                    displayPriceElement.className = "font-bold text-center leading-tight price-font";
+                    displayPriceElement.style.fontSize = '26rem';
+                    displayPriceElement.style.lineHeight = '1.1';
+                    displayPriceElement.textContent = 'SOLD';
+                    displayPriceElement.style.color = '#ef4444'; 
+                    break;
+                case 'not_for_sale':
+                    displayPriceElement.className = "font-bold text-center leading-tight price-font";
+                    displayPriceElement.style.fontSize = '12rem';
+                    displayPriceElement.textContent = 'NOT FOR SALE';
+                    displayPriceElement.style.color = 'black';
+                    break;
+            }
+
+            const formattedKms = kilometers.toLocaleString('en-US');
+            document.getElementById('display-make-model-year').textContent = `${year} ${make} ${model}`;
+            
+            // Simplified footer layout for cleaner look
+            document.getElementById('display-kms-transmission').innerHTML = `
+                <span class="font-mono">${formattedKms} kms</span>
+                <span class="text-gray-400">|</span>
+                <span>${transmission}</span>
+                <span class="text-gray-400">|</span>
+                <span>${fuel}</span>
+            `;
+            
+            const historyElement = document.getElementById('display-history');
+            const badges = [];
+
+            if (hasHistory) {
+                badges.push(`<span class="px-4 py-2 border-4 border-black rounded-lg font-black uppercase text-base">Written-off History</span>`);
+            }
+            if (isAsIs) {
+                badges.push(`<span class="px-4 py-2 border-4 border-black rounded-lg font-black uppercase text-base">Sold As-Is</span>`);
+            }
+            if (hasRego) {
+                badges.push(`<span class="px-4 py-2 border-2 border-black bg-black text-white rounded-lg font-bold uppercase text-base">3 Months Rego</span>`);
+            }
+            historyElement.innerHTML = badges.join('');
+        }
+
+        // --- Event Listeners ---
+        carForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(carForm);
+            
+            populatePrintPreview(formData);
+            showPrintPreview();
+
+            const data = Object.fromEntries(formData.entries());
+
+            fetch('save_car.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Server Response:', result);
+                if (result.status !== 'success') {
+                    alert('Could not save data: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error Saving Data:', error);
+                alert('A network error occurred. Could not save data.');
+            });
+        });
+
+        backToFormButton.addEventListener('click', function() {
+            showForm();
+        });
+
+        priceOptions.addEventListener('change', function(event) {
+            if (event.target.name === 'price_option') {
+                if (event.target.value === 'show_price') {
+                    priceInputContainer.style.display = 'block';
+                    salePriceInput.required = true;
+                } else {
+                    priceInputContainer.style.display = 'none';
+                    salePriceInput.required = false;
+                }
+            }
+        });
+
+        // --- Initial Setup ---
+        loadMakes(); 
+        document.getElementById('show-price-radio').dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // Run the new URL param checker
+        populateFromUrlParams();
+        
+        // Only show form if we didn't just auto-submit
+        if (!new URLSearchParams(window.location.search).has('make')) {
+            showForm();
+        }
+    </script>
+</body>
+</html>
